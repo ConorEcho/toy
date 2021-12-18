@@ -2,19 +2,31 @@ package toy
 
 import "strings"
 
-type simpleParser struct {
-	routerMap map[string]struct{}
+type simpleMatcher struct {
+	routeMap     map[string]struct{}
+	vars         map[string]string
+	matchedRoute string
 }
 
-func NewSimpleParser() *simpleParser {
-	return &simpleParser{make(map[string]struct{})}
+func (m *simpleMatcher) GetMatchedVars() map[string]string {
+	return m.vars
 }
 
-func (p *simpleParser) insert(method string, route string) {
-	p.routerMap[route] = struct{}{}
+func (m *simpleMatcher) GetMatchedRoute() string {
+	return m.matchedRoute
 }
 
-func (p *simpleParser) matchRoute(cur, target string) (map[string]string, bool) {
+func NewSimpleParser() *simpleMatcher {
+	return &simpleMatcher{
+		routeMap: make(map[string]struct{}),
+	}
+}
+
+func (m *simpleMatcher) Add(method string, route string) {
+	m.routeMap[route] = struct{}{}
+}
+
+func (m *simpleMatcher) matchRoute(cur, target string) (map[string]string, bool) {
 	cur = strings.Trim(cur, "/")
 	target = strings.Trim(target, "/")
 
@@ -53,14 +65,20 @@ func (p *simpleParser) matchRoute(cur, target string) (map[string]string, bool) 
 	return params, true
 }
 
-func (p *simpleParser) parse(method string, route string) (params map[string]string, matchRoute *string) {
-	matched := false
-	for r, _ := range p.routerMap {
-		if params, matched = p.matchRoute(route, r); matched {
-			matchRoute = &r
+func (m *simpleMatcher) Match(method string, route string) (matched bool) {
+	m.ResetMatchedResult()
+
+	for r, _ := range m.routeMap {
+		if m.vars, matched = m.matchRoute(route, r); matched {
+			m.matchedRoute = r
 			return
 		}
 	}
 
 	return
+}
+
+func (m *simpleMatcher) ResetMatchedResult() {
+	m.matchedRoute = ""
+	m.vars = make(map[string]string)
 }
