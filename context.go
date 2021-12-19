@@ -14,15 +14,18 @@ type RequestContext struct {
 
 	Params map[string]string
 
+	fullPath string
+
 	handlers []HandlerFunc
 	index    int
 }
 
-func NewContext(w http.ResponseWriter, req *http.Request, method string, path string) *RequestContext {
+func NewContext(w http.ResponseWriter, req *http.Request, method string) *RequestContext {
 	return &RequestContext{
 		responseWriter: w,
 		Request:        req,
 		index:          -1,
+		fullPath:       req.URL.Path,
 	}
 }
 
@@ -34,7 +37,7 @@ func (c *RequestContext) Next() {
 }
 
 func (c *RequestContext) GetPath() string {
-	return c.Request.URL.Path
+	return c.fullPath
 }
 
 func (c *RequestContext) GetMethod() string {

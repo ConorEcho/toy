@@ -7,6 +7,8 @@ import (
 
 type HandlerFunc func(*RequestContext)
 
+type HandlerChain []HandlerFunc
+
 type routerGroup struct {
 	prefix   string
 	parent   *routerGroup
@@ -97,7 +99,7 @@ func (group *routerGroup) getHandlers(path string) []HandlerFunc {
 }
 
 func (group *routerGroup) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	ctx := NewContext(w, req, req.Method, req.URL.Path)
+	ctx := NewContext(w, req, req.Method)
 	ctx.handlers = group.getHandlers(req.URL.Path)
 	group.engine.router.handle(ctx)
 }
