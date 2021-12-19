@@ -11,21 +11,26 @@ type routeMatcher interface {
 	resetMatchedResult()
 }
 
-type router struct {
-	handlers map[string]HandlerFunc
-	matcher  routeMatcher
+type routeStorage interface {
+	Store(method string, route string, handlers HandlerChain)
+	GetHandlers(method string, route string) HandlerChain
 }
 
-func newRouter(matcher routeMatcher) *router {
+type router struct {
+	storage routeStorage
+	matcher routeMatcher
+}
+
+func newRouter() *router {
 	return &router{
-		handlers: make(map[string]HandlerFunc),
-		matcher:  matcher,
+		storage: NewHashStorage(),
+		matcher: NewSimpleParser(),
 	}
 }
 
 func (r *router) addRoute(method string, pattern string, handler HandlerFunc) {
 	r.matcher.Add(method, pattern)
-	r.handlers[pattern] = handler
+	r.storage.Store(method, pattern, HandlerChain{handler})
 }
 
 func (r *router) handle(c *RequestContext) {
@@ -33,7 +38,7 @@ func (r *router) handle(c *RequestContext) {
 	path := c.GetPath()
 	if matched := r.matcher.Match(method, path); matched {
 		c.Params = r.matcher.GetMatchedVars()
-		c.handlers = append(c.handlers, r.handlers[r.matcher.GetMatchedRoute()])
+		c.handlers = append(c.handlers, r.storage.GetHandlers(method, r.matcher.GetMatchedRoute())...)
 	} else {
 		c.handlers = append(c.handlers, func(c *RequestContext) {
 			c.String(http.StatusNotFound, "404 NOT FOUND: %s\n", c.GetPath())

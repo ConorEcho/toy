@@ -25,7 +25,7 @@ type Engine struct {
 
 func New() *Engine {
 	e := &Engine{
-		router: newRouter(NewSimpleParser()),
+		router: newRouter(),
 		routerGroup: &routerGroup{
 			children: []*routerGroup{},
 		},
