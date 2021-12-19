@@ -66,7 +66,7 @@ func (m *simpleMatcher) matchRoute(cur, target string) (map[string]string, bool)
 }
 
 func (m *simpleMatcher) Match(method string, route string) (matched bool) {
-	m.ResetMatchedResult()
+	m.resetMatchedResult()
 
 	for r, _ := range m.routeMap {
 		if m.vars, matched = m.matchRoute(route, r); matched {
@@ -78,7 +78,7 @@ func (m *simpleMatcher) Match(method string, route string) (matched bool) {
 	return
 }
 
-func (m *simpleMatcher) ResetMatchedResult() {
+func (m *simpleMatcher) resetMatchedResult() {
 	m.matchedRoute = ""
 	m.vars = make(map[string]string)
 }

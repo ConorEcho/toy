@@ -7,7 +7,8 @@ type routeMatcher interface {
 	Match(method string, route string) (matched bool)
 	GetMatchedVars() map[string]string
 	GetMatchedRoute() string
-	ResetMatchedResult()
+
+	resetMatchedResult()
 }
 
 type router struct {
