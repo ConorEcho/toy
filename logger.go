@@ -10,6 +10,6 @@ func Logger() HandlerFunc {
 		t := time.Now()
 		c.Next()
 
-		log.Printf(" %s in %v", c.Request.RequestURI, time.Since(t))
+		log.Printf("[%d] %s cost %v", c.statusCode, c.Request.RequestURI, time.Since(t))
 	}
 }

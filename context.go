@@ -16,6 +16,8 @@ type RequestContext struct {
 
 	fullPath string
 
+	statusCode int
+
 	handlers []HandlerFunc
 	index    int
 }
@@ -53,6 +55,7 @@ func (c *RequestContext) Query(key string) string {
 }
 
 func (c *RequestContext) Status(code int) {
+	c.statusCode = code
 	c.responseWriter.WriteHeader(code)
 }
 
